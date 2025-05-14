@@ -43,6 +43,40 @@ app.MapGet("/api/appointments", (HillarysHairCareDbContext db) =>
     }).ToList();
 });
 
+// GET appointment by ID
+app.MapGet("/api/appointments/{id}", (HillarysHairCareDbContext db, int id) =>
+{
+    return db.Appointments.Include(a => a.Stylist).Include(a => a.Customer).Include(a => a.AppointmentServices).ThenInclude(aps => aps.Service)
+
+    .Select(a => new AppointmentDTO
+    {
+        Id = a.Id,
+        StylistId = a.StylistId,
+        CustomerId = a.CustomerId,
+        Time = a.Time,
+        Stylist = new StylistDTO
+        {
+            Id = a.Stylist.Id,
+            Name = a.Stylist.Name,
+            IsActive = a.Stylist.IsActive
+        },
+        Customer = new CustomerDTO
+        {
+            Id = a.Customer.Id,
+            Name = a.Customer.Name
+        },
+        Services = a.AppointmentServices.Select(aps => new ServiceDTO
+        {
+            Id = aps.Service.Id,
+            Name = aps.Service.Name,
+            Price = aps.Service.Price
+        }).ToList()
+    }).SingleOrDefault(a => a.Id == id);
+
+
+
+});
+
 //Customers
 
 //GET All Customers
@@ -54,6 +88,19 @@ app.MapGet("/api/customers", (HillarysHairCareDbContext db) =>
         Name = c.Name
     }).ToList();
 });
+
+// GET Customer by Id
+app.MapGet("/api/customers/{id}", (HillarysHairCareDbContext db, int id) =>
+{
+    return db.Customers.Where(c => c.Id == id).Select(c => new CustomerDTO
+    {
+        Id = c.Id,
+        Name = c.Name
+    }).SingleOrDefault();
+});
+
+
+
 
 //Services
 
@@ -79,6 +126,17 @@ app.MapGet("/api/stylists", (HillarysHairCareDbContext db) =>
         Name = st.Name,
         IsActive = st.IsActive
     }).ToList();
+});
+
+//Get stylist by Id
+app.MapGet("/api/stylists/{id}", (HillarysHairCareDbContext db, int id) =>
+{
+    return db.Stylists.Where(st => st.Id == id).Select(st => new StylistDTO
+    {
+        Id = st.Id,
+        Name = st.Name,
+        IsActive = st.IsActive
+    }).SingleOrDefault();
 });
 
 
