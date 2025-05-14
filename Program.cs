@@ -75,12 +75,36 @@ app.MapGet("/api/appointments/{id}", (HillarysHairCareDbContext db, int id) =>
 });
 
 // Add a new appointment
-app.MapPost("/api/appointments", (HillarysHairCareDbContext db, Appointment appointment) => 
+app.MapPost("/api/appointments", (HillarysHairCareDbContext db, Appointment appointment) =>
 {
     db.Appointments.Add(appointment);
     db.SaveChanges();
     return Results.Created($"/api/appointments/{appointment.Id}", appointment);
 });
+
+
+// update services in Appointment
+app.MapPatch("/api/appointments/{id}/services", (HillarysHairCareDbContext db, int id, List<int> serviceIds) =>
+{
+    Appointment appointmentToUpdate = db.Appointments.SingleOrDefault(a => a.Id == id);
+    List<AppointmentService> currentServices = db.AppointmentServices.Where(aps => aps.AppointmentId == id).ToList();
+    db.AppointmentServices.RemoveRange(currentServices);
+    foreach (int serviceId in serviceIds)
+    {
+        AppointmentService newAppointmentService = new AppointmentService
+        {
+            AppointmentId = id,
+            ServiceId = serviceId
+        };
+        db.AppointmentServices.Add(newAppointmentService);
+    }
+    db.SaveChanges();
+    return Results.NoContent();
+}
+);
+
+
+
 
 //Customers
 
@@ -105,11 +129,19 @@ app.MapGet("/api/customers/{id}", (HillarysHairCareDbContext db, int id) =>
 });
 
 // Add a new customer
-app.MapPost("/api/customers", (HillarysHairCareDbContext db, Customer customer) => 
+app.MapPost("/api/customers", (HillarysHairCareDbContext db, Customer customer) =>
 {
     db.Customers.Add(customer);
     db.SaveChanges();
     return Results.Created($"/api/customers/{customer.Id}", customer);
+});
+
+// Add a new customer
+app.MapPost("/api/stylists", (HillarysHairCareDbContext db, Stylist stylist) =>
+{
+    db.Stylists.Add(stylist);
+    db.SaveChanges();
+    return Results.Created($"/api/stylists/{stylist.Id}", stylist);
 });
 
 //Services
@@ -149,13 +181,17 @@ app.MapGet("/api/stylists/{id}", (HillarysHairCareDbContext db, int id) =>
     }).SingleOrDefault();
 });
 
-// Add a new customer
-app.MapPost("/api/stylists", (HillarysHairCareDbContext db, Stylist stylist) => 
+// update stylist from Active or inactive
+app.MapPatch("/api/stylists/{id}", (HillarysHairCareDbContext db, int id, Stylist stylist) =>
 {
-    db.Stylists.Add(stylist);
+    Stylist stylistToUpdate = db.Stylists.SingleOrDefault(stylist => stylist.Id == id);
+    stylistToUpdate.IsActive = stylist.IsActive;
     db.SaveChanges();
-    return Results.Created($"/api/stylists/{stylist.Id}", stylist);
-});
+    return Results.NoContent();
+}
+
+
+);
 
 app.Run();
 
