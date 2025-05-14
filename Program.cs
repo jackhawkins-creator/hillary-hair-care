@@ -1,6 +1,8 @@
 using HillarysHairCare.Models;
 using HillarysHairCare.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// allows passing datetimes without time zone data 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+// allows our api endpoints to access the database through Entity Framework Core
+builder.Services.AddNpgsql<HillarysHairCareDbContext>(builder.Configuration["HillarysHairCareDbConnectionString"]);
+
 
 var app = builder.Build();
 
@@ -20,6 +29,57 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+//Appointments
+
+//GET All Appointments
+app.MapGet("/api/appointments", (HillarysHairCareDbContext db) =>
+{
+    return db.Appointments.Select(a => new AppointmentDTO
+    {
+        Id = a.Id,
+        StylistId = a.StylistId,
+        CustomerId = a.CustomerId,
+        Time = a.Time
+    }).ToList();
+});
+
+//Customers
+
+//GET All Customers
+app.MapGet("/api/customers", (HillarysHairCareDbContext db) =>
+{
+    return db.Customers.Select(c => new CustomerDTO
+    {
+        Id = c.Id,
+        Name = c.Name
+    }).ToList();
+});
+
+//Services
+
+//GET All Services
+app.MapGet("/api/services", (HillarysHairCareDbContext db) =>
+{
+    return db.Services.Select(se => new ServiceDTO
+    {
+        Id = se.Id,
+        Name = se.Name,
+        Price = se.Price
+    }).ToList();
+});
+
+//Stylists
+
+//GET All Stylists
+app.MapGet("/api/stylists", (HillarysHairCareDbContext db) =>
+{
+    return db.Stylists.Select(st => new StylistDTO
+    {
+        Id = st.Id,
+        Name = st.Name,
+        IsActive = st.IsActive
+    }).ToList();
+});
 
 
 app.Run();
