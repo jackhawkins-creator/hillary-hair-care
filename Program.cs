@@ -72,9 +72,14 @@ app.MapGet("/api/appointments/{id}", (HillarysHairCareDbContext db, int id) =>
             Price = aps.Service.Price
         }).ToList()
     }).SingleOrDefault(a => a.Id == id);
+});
 
-
-
+// Add a new appointment
+app.MapPost("/api/appointments", (HillarysHairCareDbContext db, Appointment appointment) => 
+{
+    db.Appointments.Add(appointment);
+    db.SaveChanges();
+    return Results.Created($"/api/appointments/{appointment.Id}", appointment);
 });
 
 //Customers
@@ -99,8 +104,13 @@ app.MapGet("/api/customers/{id}", (HillarysHairCareDbContext db, int id) =>
     }).SingleOrDefault();
 });
 
-
-
+// Add a new customer
+app.MapPost("/api/customers", (HillarysHairCareDbContext db, Customer customer) => 
+{
+    db.Customers.Add(customer);
+    db.SaveChanges();
+    return Results.Created($"/api/customers/{customer.Id}", customer);
+});
 
 //Services
 
@@ -139,6 +149,13 @@ app.MapGet("/api/stylists/{id}", (HillarysHairCareDbContext db, int id) =>
     }).SingleOrDefault();
 });
 
+// Add a new customer
+app.MapPost("/api/stylists", (HillarysHairCareDbContext db, Stylist stylist) => 
+{
+    db.Stylists.Add(stylist);
+    db.SaveChanges();
+    return Results.Created($"/api/stylists/{stylist.Id}", stylist);
+});
 
 app.Run();
 
