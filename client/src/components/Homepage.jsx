@@ -25,16 +25,18 @@ export default function Homepage() {
   }, []);
 
   const fetchData = async () => {
-    const [app, sty, cust, serv] = await Promise.all([
-      getAppointments(),
-      getCustomers(),
-      getStylists(),
-      getServices(),
-    ]);
-    setAppointments(app);
-    setCustomers(cust);
-    setServices(serv);
-    setStylists(sty);
+    const [app, cust, sty, serv] = await Promise.all([
+  getAppointments(),
+  getCustomers(),  
+  getStylists(),   
+  getServices(),
+]);
+
+setAppointments(app);
+setCustomers(cust);  
+setStylists(sty);    
+setServices(serv);
+
   };
 
   const handleDelete = async (id) => {

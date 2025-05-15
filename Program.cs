@@ -194,13 +194,6 @@ app.MapPost("/api/customers", (HillarysHairCareDbContext db, Customer customer) 
     return Results.Created($"/api/customers/{customer.Id}", customer);
 });
 
-// Add a new customer
-app.MapPost("/api/stylists", (HillarysHairCareDbContext db, Stylist stylist) =>
-{
-    db.Stylists.Add(stylist);
-    db.SaveChanges();
-    return Results.Created($"/api/stylists/{stylist.Id}", stylist);
-});
 
 //Services
 
@@ -246,10 +239,16 @@ app.MapPatch("/api/stylists/{id}", (HillarysHairCareDbContext db, int id, Stylis
     stylistToUpdate.IsActive = stylist.IsActive;
     db.SaveChanges();
     return Results.NoContent();
-}
+});
 
+// Add a new stylist
+app.MapPost("/api/stylists", (HillarysHairCareDbContext db, Stylist stylist) =>
+{
+    db.Stylists.Add(stylist);
+    db.SaveChanges();
+    return Results.Created($"/api/stylists/{stylist.Id}", stylist);
+});
 
-);
 
 app.Run();
 
