@@ -51,12 +51,29 @@ app.UseCors("DevCors");
 //GET All Appointments
 app.MapGet("/api/appointments", (HillarysHairCareDbContext db) =>
 {
-    return db.Appointments.Select(a => new AppointmentDTO
+    return db.Appointments.Include(a => a.Stylist).Include(a => a.Customer).Include(a => a.AppointmentServices).ThenInclude(aps => aps.Service).Select(a => new AppointmentDTO
     {
         Id = a.Id,
         StylistId = a.StylistId,
         CustomerId = a.CustomerId,
-        Time = a.Time
+        Time = a.Time,
+        Stylist = new StylistDTO
+        {
+            Id = a.Stylist.Id,
+            Name = a.Stylist.Name,
+            IsActive = a.Stylist.IsActive
+        },
+        Customer = new CustomerDTO
+        {
+            Id = a.Customer.Id,
+            Name = a.Customer.Name
+        },
+        Services = a.AppointmentServices.Select(aps => new ServiceDTO
+        {
+            Id = aps.Service.Id,
+            Name = aps.Service.Name,
+            Price = aps.Service.Price
+        }).ToList()
     }).ToList();
 });
 
@@ -92,11 +109,24 @@ app.MapGet("/api/appointments/{id}", (HillarysHairCareDbContext db, int id) =>
 });
 
 // Add a new appointment
-app.MapPost("/api/appointments", (HillarysHairCareDbContext db, Appointment appointment) =>
+app.MapPost("/api/appointments", (HillarysHairCareDbContext db, AppointmentDTO dto) =>
 {
-    db.Appointments.Add(appointment);
-    db.SaveChanges();
-    return Results.Created($"/api/appointments/{appointment.Id}", appointment);
+    return Results.Created(
+        $"/api/appointments/{(
+            db.Appointments.Add(
+                new Appointment
+                {
+                    StylistId = dto.StylistId,
+                    CustomerId = dto.CustomerId,
+                    Time = dto.Time,
+                    AppointmentServices = dto.ServiceIds.Select(serviceId => new AppointmentService
+                    {
+                        ServiceId = serviceId
+                    }).ToList()
+                }).Entity.Id
+        )}",
+        db.SaveChanges()
+    );
 });
 
 

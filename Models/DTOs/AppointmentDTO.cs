@@ -10,4 +10,12 @@ public class AppointmentDTO
     public CustomerDTO Customer { get; set; }
     public StylistDTO Stylist { get; set; }
     public List<ServiceDTO> Services { get; set; }
+    public List<int> ServiceIds { get; set; }
+    public decimal TotalCost
+    {
+        get
+        {
+            return Services?.Sum(s => s.Price)??0;
+        }
+    }
 }

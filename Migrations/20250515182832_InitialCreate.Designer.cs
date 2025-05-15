@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HillarysHairCare.Migrations
 {
     [DbContext(typeof(HillarysHairCareDbContext))]
-    [Migration("20250514160829_InitialCreate")]
+    [Migration("20250515182832_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -42,6 +42,10 @@ namespace HillarysHairCare.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("StylistId");
 
                     b.ToTable("Appointments");
 
@@ -98,6 +102,10 @@ namespace HillarysHairCare.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId");
+
+                    b.HasIndex("ServiceId");
 
                     b.ToTable("AppointmentServices");
 
@@ -286,6 +294,49 @@ namespace HillarysHairCare.Migrations
                             IsActive = true,
                             Name = "Mallory"
                         });
+                });
+
+            modelBuilder.Entity("HillarysHairCare.Models.Appointment", b =>
+                {
+                    b.HasOne("HillarysHairCare.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HillarysHairCare.Models.Stylist", "Stylist")
+                        .WithMany()
+                        .HasForeignKey("StylistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Stylist");
+                });
+
+            modelBuilder.Entity("HillarysHairCare.Models.AppointmentService", b =>
+                {
+                    b.HasOne("HillarysHairCare.Models.Appointment", "Appointment")
+                        .WithMany("AppointmentServices")
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HillarysHairCare.Models.Service", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("HillarysHairCare.Models.Appointment", b =>
+                {
+                    b.Navigation("AppointmentServices");
                 });
 #pragma warning restore 612, 618
         }
