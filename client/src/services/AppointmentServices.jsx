@@ -20,7 +20,7 @@ export const deleteAppointment = async (id) => {
 export const createAppointment = async (newAppointment) => {
     const res = await fetch(`${API}/appointments`, {
         method: "POST",
-        header: {
+        headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify(newAppointment),
