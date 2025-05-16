@@ -7,6 +7,7 @@ import { getCustomers } from "../services/CustomerServices";
 import { getStylists } from "../services/StylistServices";
 import { getServices } from "../services/ServicesServices";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Homepage() {
   const [appointments, setAppointments] = useState([]);
@@ -26,17 +27,16 @@ export default function Homepage() {
 
   const fetchData = async () => {
     const [app, cust, sty, serv] = await Promise.all([
-  getAppointments(),
-  getCustomers(),  
-  getStylists(),   
-  getServices(),
-]);
+      getAppointments(),
+      getCustomers(),
+      getStylists(),
+      getServices(),
+    ]);
 
-setAppointments(app);
-setCustomers(cust);  
-setStylists(sty);    
-setServices(serv);
-
+    setAppointments(app);
+    setCustomers(cust);
+    setStylists(sty);
+    setServices(serv);
   };
 
   const handleDelete = async (id) => {
@@ -53,18 +53,26 @@ setServices(serv);
 
   const handleServices = (id) => {
     setNewAppointment((previous) => ({
-        ...previous,
-        serviceIds: previous.serviceIds.includes(id) ? previous.serviceIds.filter((serviceId) => serviceId !== id) : [...previous.serviceIds, id],
-    }))
-  }
-
-  const handleSubmit = async () => {
-    await createAppointment(newAppointment)
-
-    fetchData();
-    setNewAppointment({ stylistId: '', customerId: '', time: '', serviceIds: [] });
+      ...previous,
+      serviceIds: previous.serviceIds.includes(id)
+        ? previous.serviceIds.filter((serviceId) => serviceId !== id)
+        : [...previous.serviceIds, id],
+    }));
   };
 
+  const handleSubmit = async () => {
+    await createAppointment(newAppointment);
+
+    fetchData();
+    setNewAppointment({
+      stylistId: "",
+      customerId: "",
+      time: "",
+      serviceIds: [],
+    });
+  };
+
+  const navigate = useNavigate();
 
   return (
     //get all appointments
@@ -78,11 +86,13 @@ setServices(serv);
         }
       >
         <option value=""> Select a stylist </option>
-        {stylists.map((s) => (
-          <option key={s.id} value={s.id}>
-            {s.name}
-          </option>
-        ))}
+        {stylists
+          .filter((s) => s.isActive)
+          .map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
+          ))}
       </select>
       <label> Customer:</label>
       <select
@@ -127,7 +137,7 @@ setServices(serv);
             {a.customer?.name} has an appointment at {a.time} with{" "}
             {a.stylist?.name} for a {a.services.map((s) => s.name).join(", ")}.
             The total cost will be ${a.totalCost}.{"  "}
-            <button> Edit</button>
+            <button onClick={() => navigate(`/edit-appointment/${a.id}`)}> Edit</button>
             <button onClick={() => handleDelete(a.id)}> Delete</button>
           </li> // delete appointments
         ))}
@@ -135,5 +145,3 @@ setServices(serv);
     </div>
   );
 }
-
-//create appointments
