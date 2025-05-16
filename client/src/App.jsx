@@ -4,6 +4,7 @@ import Homepage from "./components/Homepage";
 import AddCustomer from "./components/AddCustomer";
 import EditStylist from "./components/EditStylist";
 import AddStylist from "./components/AddStylist";
+import EditAppointment from "./components/EditAppointment";
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/add-stylist" element={<AddStylist />} />
           <Route path="/add-customer" element={<AddCustomer />} />
           <Route path="/edit-stylist" element={<EditStylist />} />
+          <Route path="/edit-appointment/:id" element={<EditAppointment />} />
         </Routes>
       </main>
     </>
